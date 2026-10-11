@@ -1,0 +1,182 @@
+<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>星砂冒險記</title><link rel="manifest" href="manifest.json"><meta name="theme-color" content="#3b6e4f">
+<link rel="apple-touch-icon" href="apple-touch-icon.png"><link rel="icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="星砂冒險記">
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,"Noto Sans TC",sans-serif;background:#1d2b22;color:#2a2a2a;display:flex;justify-content:center}
+#app{width:100%;max-width:480px;min-height:100vh;background:#f3ead8;padding-bottom:64px;position:relative}
+header{background:#3b6e4f;color:#fff;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;font-size:.9em;position:sticky;top:0;z-index:5}
+.tab{display:none;padding:8px}.tab.on{display:block}
+nav{position:fixed;bottom:0;width:100%;max-width:480px;display:grid;grid-template-columns:repeat(6,1fr);background:#2c4a37;z-index:6;padding-bottom:env(safe-area-inset-bottom)}
+nav button{background:none;color:#cfe;border:none;padding:8px 0;font-size:.75em}nav button.on{color:#ffd76a;font-weight:bold}nav b{display:block;font-size:1.5em}
+button{font:inherit;border:none;border-radius:8px;background:#5b8c5a;color:#fff;padding:7px 10px;cursor:pointer}button.y{background:#d9a036}button.r{background:#b8483b}button.g{background:#888}button:disabled{opacity:.4}
+.box{background:#fffaf0;border:2px solid #c9b48a;border-radius:10px;padding:8px;margin:6px 0}
+#arena{position:relative;height:260px;border-radius:10px;overflow:hidden;border:3px solid #6b5432;background:linear-gradient(#a8d8f0 0 45%,#7cb45a 45%)}
+.u{position:absolute;width:64px;text-align:center;transition:transform .15s}.u .e{font-size:40px;line-height:46px;filter:drop-shadow(2px 3px 0 rgba(0,0,0,.25))}
+.u .n{font-size:10px;background:rgba(0,0,0,.45);color:#fff;border-radius:4px;white-space:nowrap;overflow:hidden}
+.hb{height:5px;background:#444;border-radius:3px;overflow:hidden;margin-top:1px}.hb i{display:block;height:100%;background:#4c4;transition:width .3s}.mb i{background:#49f}
+.u.dead{opacity:.25;filter:grayscale(1)}.u.boss .e{font-size:64px;line-height:70px}
+.u.shake{animation:sh .3s}@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.dmg{position:absolute;font-weight:900;font-size:18px;color:#fff;text-shadow:0 0 3px #000,1px 1px 0 #c00;animation:up .8s forwards;pointer-events:none;z-index:3}.dmg.h{text-shadow:0 0 3px #000,1px 1px 0 #0a0}
+@keyframes up{to{transform:translateY(-34px);opacity:0}}
+#log{height:110px;overflow:auto;font-size:.8em;background:#2a2a2a;color:#eee;border-radius:8px;padding:6px;margin-top:6px}
+.bar{height:8px;background:#ccc;border-radius:4px;overflow:hidden}.bar i{display:block;height:100%;background:#d9a036}
+.it{display:flex;justify-content:space-between;align-items:center;padding:5px;border-bottom:1px dashed #d8c8a8;gap:6px;font-size:.9em}
+.q0{color:#666}.q1{color:#2e8b3a}.q2{color:#2d6fd1}.q3{color:#8e44ad}.q4{color:#e67e22;font-weight:bold}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:.9em}
+#modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:10}#modal .box{max-width:340px;width:90%}
+input,select,textarea{font:inherit;padding:7px;border:2px solid #c9b48a;border-radius:8px;width:100%}
+.jobs{display:grid;grid-template-columns:1fr 1fr;gap:6px}.jobs div{border:2px solid #c9b48a;border-radius:10px;padding:8px;text-align:center;background:#fff}.jobs div.sel{border-color:#d9a036;background:#fff3d0}
+small{color:#776}
+</style></head><body><div id="app">
+<div id="create" class="tab on"><h2 style="text-align:center;color:#3b6e4f">✨ 星砂冒險記 ✨</h2><div class="box"><b>角色名稱</b><input id="cname" maxlength="8" placeholder="輸入名字"></div>
+<div class="box"><b>選擇職業</b><div class="jobs" id="jobs"></div></div><button style="width:100%;padding:12px" onclick="createChar()">開始冒險</button></div>
+<div id="main" style="display:none">
+<header><span id="hd"></span><span>💰<b id="gold">0</b></span></header>
+<div id="t-battle" class="tab on"><div class="row" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b id="mapName"></b><span><button class="y" id="spdBtn" onclick="toggleSpeed()">x1</button> <button id="bossBtn" class="r" onclick="S.bossNext=1;log('⚠ 下一場挑戰首領！')">首領</button></span></div>
+<div id="arena"></div><div style="display:flex;gap:6px;margin-top:6px;font-size:.85em;align-items:center"><label><input type="checkbox" id="capT" style="width:auto" onchange="S.set.cap=this.checked;save()"> 捕捉模式</label><span id="killInfo" style="margin-left:auto"></span></div>
+<div id="log"></div></div>
+<div id="t-char" class="tab"></div><div id="t-pet" class="tab"></div><div id="t-bag" class="tab"></div><div id="t-map" class="tab"></div><div id="t-set" class="tab"></div>
+<nav><button class="on" data-t="battle"><b>⚔️</b>戰鬥</button><button data-t="char"><b>🧑</b>角色</button><button data-t="pet"><b>🐾</b>寵物</button><button data-t="bag"><b>🎒</b>背包/商店</button><button data-t="map"><b>🗺️</b>地圖</button><button data-t="set"><b>⚙️</b>設定</button></nav>
+</div><div id="modal"><div class="box" id="mbox"></div></div></div>
+<script>
+const $=id=>document.getElementById(id),R=(a,b)=>a+Math.floor(Math.random()*(b-a+1)),esc=x=>String(x).replace(/[&<>"']/g,c=>'&#'+c.charCodeAt(0)+';');
+/* ===== 資料（全為原創名稱） ===== */
+const JOBS={劍士:{e:'🤺',g:{str:3,vit:2,int:0,agi:1},sk:[{n:'裂地斬',mp:6,k:'atk',m:1.9},{n:'旋風劍',mp:12,k:'aoe',m:.9}],d:'高血量近戰，單體重擊與群體斬擊'},
+弓手:{e:'🧝',g:{str:2,vit:1,int:0,agi:3},sk:[{n:'穿心箭',mp:6,k:'atk',m:2.1,crit:.35},{n:'流星箭雨',mp:12,k:'multi',m:.7,hits:4}],d:'速度快、爆擊高，多段射擊'},
+魔法師:{e:'🧙',g:{str:0,vit:1,int:4,agi:1},sk:[{n:'炎爆術',mp:10,k:'maoe',m:1.2},{n:'冰晶槍',mp:7,k:'matk',m:2.2}],d:'魔法群體傷害，血量偏低'},
+傳教士:{e:'😇',g:{str:1,vit:2,int:3,agi:0},sk:[{n:'治癒之光',mp:8,k:'heal',m:2.2},{n:'聖輝術',mp:7,k:'matk',m:1.6}],d:'治療隊友，穩定耐打'}};
+const MAPS=[{n:'微風草原',lv:[1,5],m:[['綠團子','🟢',1,1,1],['跳跳兔','🐇',.8,1.1,1.4],['角角蟲','🐛',1.2,.9,.8]],boss:['巨角草原獸','🦬',6]},
+{n:'迷霧森林',lv:[5,12],m:[['樹精寶寶','🌱',1.3,.9,.8],['夜鳴梟','🦉',.9,1.1,1.3],['毒蘑菇怪','🍄',1,1.2,.9]],boss:['古樹守衛','🌳',14]},
+{n:'熔岩洞窟',lv:[12,20],m:[['熔岩蜥','🦎',1.1,1.2,1.1],['火焰蝠','🦇',.8,1.2,1.5],['岩甲蟹','🦀',1.6,1,.6]],boss:['炎角魔龍','🐉',22]},
+{n:'寒霜雪原',lv:[20,30],m:[['雪絨狐','🦊',1,1.2,1.4],['冰牙狼','🐺',1.2,1.3,1.2],['霜甲企鵝','🐧',1.5,1,.8]],boss:['冰原巨熊王','🐻‍❄️',32]},
+{n:'天空遺跡',lv:[30,40],m:[['風翼獅鷲','🦅',1.1,1.3,1.5],['石像守衛','🗿',1.8,1.2,.6],['星光精靈','🧚',.9,1.5,1.3]],boss:['星砂天龍','🐲',42]}];
+const QN=['普通','精良','稀有','史詩','傳說'],QM=[1,1.3,1.7,2.3,3.2],QW=[60,25,10,4,1];
+const SLOT={w:['武器',['短劍','獵弓','木杖','銀槌','戰斧','法典'],'atk'],a:['防具',['皮甲','鎖子甲','法袍','鱗甲'],'def'],c:['飾品',['幸運符','疾風戒','月光墜'],'spd']};
+const SHOP=[{id:'hp',n:'生命藥水',e:'🧪',p:20,d:'回復 40% HP'},{id:'mp',n:'魔力藥水',e:'💧',p:30,d:'回復 40% MP'}];
+/* ===== 存檔 ===== */
+let S=null;const KEY='idlerpg_save';
+function save(){if(!S)return;S.t=Date.now();localStorage.setItem(KEY,JSON.stringify(S))}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+/* ===== 角色/寵物數值 ===== */
+function charStats(c){const st={...c.st};let atk=0,def=0,spd=0;for(const k in c.eq){const it=c.eq[k];if(it){atk+=it.atk||0;def+=it.def||0;spd+=it.spd||0}}
+return{maxhp:50+st.vit*12+c.lv*6,maxmp:20+st.int*5+c.lv*2,atk:5+st.str*2.2+atk,mat:5+st.int*2.4+atk*.5,def:2+st.vit*1.1+def,spd:5+st.agi*1.5+spd,crit:.05+st.agi*.002}}
+function mobStats(t,lv,boss){const[n,e,hm,am,sm]=t,b=boss?3.2:1;return{name:n,e,lv,maxhp:Math.round((30+lv*14*hm)*b),atk:(6+lv*3.2*am)*(boss?1.3:1),mat:(6+lv*3*am),def:2+lv*1.5,spd:5+lv*1.6*sm,crit:.05,boss:!!boss,tpl:t}}
+function petStats(p){const s=mobStats(p.tpl,p.lv);return{...s,maxhp:Math.round(s.maxhp*1.1),atk:s.atk*.95,def:s.def*1.1,name:p.name}}
+const needExp=lv=>Math.round(20*lv*lv+30*lv);
+/* ===== 建立角色 ===== */
+let pickJob='劍士';
+function drawJobs(){$('jobs').innerHTML=Object.entries(JOBS).map(([k,j])=>`<div class="${k==pickJob?'sel':''}" onclick="pickJob='${k}';drawJobs()"><div style="font-size:34px">${j.e}</div><b>${k}</b><br><small>${j.d}</small><br><small>${j.sk.map(s=>s.n).join('・')}</small></div>`).join('')}
+function newSave(name,job){const g=JOBS[job].g;return{v:1,t:Date.now(),c:{name,job,lv:1,exp:0,pts:0,st:{str:5+g.str,vit:5+g.vit,int:5+g.int,agi:5+g.agi},eq:{w:null,a:null,c:null},hp:null,mp:null},
+gold:50,pots:{hp:3,mp:2},bag:[],pets:[],party:[],map:0,unlocked:1,kills:[0,0,0,0,0],bossNext:0,set:{spd:1,cap:false,auto:true,pot:30},stats:{battles:0,caps:0}}}
+function createChar(){const n=$('cname').value.trim().slice(0,8)||'旅人';S=newSave(n,pickJob);save();start()}
+/* ===== 介面 ===== */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x==b));document.querySelectorAll('#main .tab').forEach(t=>t.classList.toggle('on',t.id=='t-'+b.dataset.t));drawTab(b.dataset.t)});
+function drawTab(t){({char:drawChar,pet:drawPet,bag:drawBag,map:drawMap,set:drawSet}[t]||(()=>{}))()}
+const curTab=()=>document.querySelector('nav button.on').dataset.t;
+function hdr(){const c=S.c;$('hd').innerHTML=`${JOBS[c.job].e} <b>${esc(c.name)}</b> Lv.${c.lv} <span style="display:inline-block;width:60px" class="bar"><i style="width:${c.exp/needExp(c.lv)*100}%"></i></span>`;$('gold').textContent=S.gold;
+$('mapName').textContent='📍 '+MAPS[S.map].n+` (Lv.${MAPS[S.map].lv.join('-')})`;$('killInfo').textContent=`擊敗 ${S.kills[S.map]}/10　🧪${S.pots.hp} 💧${S.pots.mp}`;$('bossBtn').disabled=S.kills[S.map]<10;$('spdBtn').textContent='x'+S.set.spd;$('capT').checked=S.set.cap}
+function log(t){const l=$('log');const d=document.createElement('div');d.innerHTML=t;l.appendChild(d);while(l.children.length>80)l.firstChild.remove();l.scrollTop=1e9}
+function modal(h){$('mbox').innerHTML=h+'<button style="width:100%;margin-top:8px" onclick="$(\'modal\').style.display=\'none\'">確定</button>';$('modal').style.display='flex'}
+function drawChar(){const c=S.c,s=charStats(c),j=JOBS[c.job];
+$('t-char').innerHTML=`<div class="box"><div style="font-size:44px;text-align:center">${j.e}</div><div style="text-align:center"><b>${esc(c.name)}</b>　${c.job} Lv.${c.lv}<br><small>EXP ${c.exp}/${needExp(c.lv)}</small></div></div>
+<div class="box"><b>能力值</b>（剩餘點數：<b>${c.pts}</b>）<div class="grid2" style="margin-top:4px">${[['str','力量'],['vit','體力'],['int','智力'],['agi','敏捷']].map(([k,n])=>`<div>${n}：${c.st[k]} <button ${c.pts?'':'disabled'} onclick="addPt('${k}')">＋</button></div>`).join('')}</div>
+<label style="font-size:.85em"><input type="checkbox" style="width:auto" ${S.set.auto?'checked':''} onchange="S.set.auto=this.checked;save()"> 升級自動分配點數（依職業）</label></div>
+<div class="box grid2"><div>HP ${s.maxhp}</div><div>MP ${s.maxmp}</div><div>攻擊 ${Math.round(s.atk)}</div><div>魔攻 ${Math.round(s.mat)}</div><div>防禦 ${Math.round(s.def)}</div><div>速度 ${Math.round(s.spd)}</div><div>爆擊 ${(s.crit*100).toFixed(1)}%</div></div>
+<div class="box"><b>技能</b>${j.sk.map(k=>`<div class="it"><span>${k.n}</span><small>MP ${k.mp}</small></div>`).join('')}</div>
+<div class="box"><b>裝備</b>${Object.keys(SLOT).map(k=>{const it=c.eq[k];return`<div class="it"><span>${SLOT[k][0]}：${it?itemName(it):'<small>無</small>'}</span>${it?`<button class="g" onclick="unequip('${k}')">卸下</button>`:''}</div>`}).join('')}</div>`}
+function addPt(k){if(S.c.pts<=0)return;S.c.pts--;S.c.st[k]++;save();drawChar();hdr()}
+function itemName(it){return`<span class="q${it.q}">[${QN[it.q]}] ${it.n}</span> <small>${it.atk?'攻+'+it.atk:''}${it.def?' 防+'+it.def:''}${it.spd?' 速+'+it.spd:''}</small>`}
+function drawBag(){$('t-bag').innerHTML=`<div class="box"><b>🏪 商店</b>${SHOP.map(s=>`<div class="it"><span>${s.e} ${s.n} <small>${s.d}（持有 ${S.pots[s.id]}）</small></span><span><button class="y" onclick="buy('${s.id}',1)">${s.p}金</button> <button class="y" onclick="buy('${s.id}',10)">x10</button></span></div>`).join('')}
+<small>HP 低於 ${S.set.pot}% 時戰鬥中自動使用藥水</small></div>
+<div class="box"><b>🎒 背包（${S.bag.length}/30）</b> <button class="g" style="float:right" onclick="sellAll()">賣出普通/精良</button>${S.bag.length?S.bag.map((it,i)=>`<div class="it"><span>${SLOT[it.s][0]}・${itemName(it)} <small>Lv.${it.lv}</small></span><span style="white-space:nowrap"><button onclick="equip(${i})">裝備</button> <button class="g" onclick="sell(${i})">${price(it)}金</button></span></div>`).join(''):'<p><small>空空如也</small></p>'}</div>`}
+const price=it=>Math.round((5+it.lv*2)*QM[it.q]*QM[it.q]);
+function buy(id,n){const s=SHOP.find(x=>x.id==id);if(S.gold<s.p*n)return modal('金幣不足！');S.gold-=s.p*n;S.pots[id]+=n;save();drawBag();hdr()}
+function equip(i){const it=S.bag.splice(i,1)[0],old=S.c.eq[it.s];S.c.eq[it.s]=it;if(old)S.bag.push(old);save();drawBag();hdr()}
+function unequip(k){if(S.bag.length>=30)return modal('背包已滿');S.bag.push(S.c.eq[k]);S.c.eq[k]=null;save();drawChar()}
+function sell(i){S.gold+=price(S.bag[i]);S.bag.splice(i,1);save();drawBag();hdr()}
+function sellAll(){let g=0;S.bag=S.bag.filter(it=>{if(it.q<=1){g+=price(it);return false}return true});S.gold+=g;save();drawBag();hdr();if(g)modal('賣出獲得 '+g+' 金')}
+function drawPet(){$('t-pet').innerHTML=`<div class="box"><b>🐾 寵物（${S.pets.length}/8）</b><br><small>最多 2 隻出戰。開啟「捕捉模式」後，角色會嘗試捕捉血量低的敵人（首領無法捕捉）。</small></div>`+
+(S.pets.length?S.pets.map((p,i)=>{const s=petStats(p),on=S.party.includes(p.id);return`<div class="box it"><span style="font-size:30px">${p.tpl[1]}</span><span style="flex:1"><b>${esc(p.name)}</b> Lv.${p.lv} ${on?'⭐出戰中':''}<br><small>HP ${s.maxhp} 攻 ${Math.round(s.atk)} 防 ${Math.round(s.def)} 速 ${Math.round(s.spd)}</small><div class="bar"><i style="width:${p.exp/needExp(p.lv)*100}%"></i></div></span>
+<span style="display:flex;flex-direction:column;gap:3px"><button onclick="togglePet('${p.id}')">${on?'休息':'出戰'}</button><button class="g" onclick="renamePet(${i})">改名</button><button class="r" onclick="freePet(${i})">放生</button></span></div>`}).join(''):'<p><small>還沒有寵物，開啟捕捉模式去抓一隻吧！</small></p>')}
+function togglePet(id){const i=S.party.indexOf(id);if(i>=0)S.party.splice(i,1);else{if(S.party.length>=2)return modal('最多 2 隻寵物出戰');S.party.push(id)}save();drawPet();needReset=1}
+function renamePet(i){const n=prompt('新名字',S.pets[i].name);if(n){S.pets[i].name=n.trim().slice(0,8)||S.pets[i].name;save();drawPet()}}
+function freePet(i){if(!confirm('確定放生 '+S.pets[i].name+'？'))return;S.party=S.party.filter(x=>x!=S.pets[i].id);S.pets.splice(i,1);save();drawPet();needReset=1}
+function drawMap(){$('t-map').innerHTML=MAPS.map((m,i)=>`<div class="box it"><span><b>${i<S.unlocked?'':'🔒 '}${m.n}</b> <small>Lv.${m.lv.join('-')}</small><br><small>${m.m.map(x=>x[1]+x[0]).join(' ')}　首領：${m.boss[1]}${m.boss[0]}</small></span><button ${i<S.unlocked?'':'disabled'} onclick="goMap(${i})">${i==S.map?'所在地':'前往'}</button></div>`).join('')+'<small>擊敗 10 隻怪物後可挑戰首領，打倒首領解鎖下一區。</small>'}
+function goMap(i){S.map=i;S.bossNext=0;save();drawMap();hdr();needReset=1;log('🗺️ 前往 '+MAPS[i].n)}
+function drawSet(){$('t-set').innerHTML=`<div class="box"><b>戰鬥速度</b><br><button onclick="S.set.spd=1;save();hdr();drawSet()" class="${S.set.spd==1?'y':'g'}">x1</button> <button onclick="S.set.spd=2;save();hdr();drawSet()" class="${S.set.spd==2?'y':'g'}">x2</button></div>
+<div class="box"><b>自動喝藥門檻</b>：HP 低於 <select style="width:auto" onchange="S.set.pot=+this.value;save()">${[0,20,30,50].map(v=>`<option ${S.set.pot==v?'selected':''} value="${v}">${v}%</option>`).join('')}</select></div>
+<div class="box"><b>存檔匯出 / 匯入</b><textarea id="ioTxt" rows="4" placeholder="匯出後複製這段文字保存；匯入時貼上"></textarea><div style="display:flex;gap:6px;margin-top:4px"><button onclick="exportSave()">匯出</button><button class="y" onclick="importSave()">匯入</button><button class="r" style="margin-left:auto" onclick="if(confirm('確定刪除所有進度？')){localStorage.removeItem(KEY);location.reload()}">重置遊戲</button></div></div>
+<div class="box"><small>統計：戰鬥 ${S.stats.battles} 場・捕捉 ${S.stats.caps} 隻<br>本遊戲名稱、角色與美術皆為原創。</small></div>`}
+function exportSave(){save();$('ioTxt').value=btoa(unescape(encodeURIComponent(localStorage.getItem(KEY))))}
+function importSave(){try{const o=JSON.parse(decodeURIComponent(escape(atob($('ioTxt').value.trim()))));if(!o||!o.c||!o.c.job||!JOBS[o.c.job])throw 0;localStorage.setItem(KEY,JSON.stringify(o));location.reload()}catch(e){modal('存檔格式錯誤')}}
+function toggleSpeed(){S.set.spd=S.set.spd==1?2:1;save();hdr()}
+/* ===== 掉落/經驗 ===== */
+function rollQ(bonus){let r=Math.random()*100,q=0;const w=QW.map((x,i)=>i?x*(1+bonus):x),t=w.reduce((a,b)=>a+b);r=Math.random()*t;for(;q<4;q++){if(r<w[q])break;r-=w[q]}return q}
+function makeItem(lv,bonus){const s=['w','a','c'][R(0,2)],q=rollQ(bonus||0),def=SLOT[s],v=Math.max(1,Math.round((2+lv*1.2)*QM[q]*(.85+Math.random()*.3)));
+const it={s,q,lv,n:def[1][R(0,def[1].length-1)]};it[def[2]]=s=='c'?Math.max(1,Math.round(v*.5)):v;if(q>=2&&s!='c')it.spd=Math.round(v*.2);return it}
+function gainItem(it){if(S.bag.length>=30){S.gold+=price(it);return false}S.bag.push(it);return true}
+function autoAlloc(){const g=JOBS[S.c.job].g,keys=Object.keys(g),tot=keys.reduce((a,k)=>a+g[k],0)||1;while(S.c.pts>0){let r=Math.random()*tot;for(const k of keys){if((r-=g[k])<0){S.c.st[k]++;break}}S.c.pts--}}
+function gainExp(x){const c=S.c;c.exp+=x;let up=0;while(c.exp>=needExp(c.lv)){c.exp-=needExp(c.lv);c.lv++;c.pts+=5;up++}if(up&&S.set.auto)autoAlloc();return up}
+function petExp(p,x){p.exp+=x;let up=0;while(p.exp>=needExp(p.lv)){p.exp-=needExp(p.lv);p.lv++;up++}return up}
+/* ===== 戰鬥 ===== */
+let B=null,needReset=0,running=false;const wait=ms=>new Promise(r=>setTimeout(r,ms/S.set.spd));
+function unitHTML(u,i){return`<div class="u ${u.boss?'boss':''}" id="u${i}" style="left:${u.x}%;top:${u.y}%"><div class="e">${u.e}</div><div class="n">${esc(u.name)} Lv.${u.lv}</div><div class="hb"><i></i></div>${u.side==0&&u.maxmp?'<div class="hb mb"><i></i></div>':''}</div>`}
+function buildBattle(){const m=MAPS[S.map],boss=S.bossNext&&S.kills[S.map]>=10;const en=[];
+if(boss)en.push(mobStats([m.boss[0],m.boss[1],1.4,1.2,1],m.boss[2],1));else{const n=R(1,Math.min(4,1+Math.floor(S.c.lv/3)));for(let i=0;i<n;i++)en.push(mobStats(m.m[R(0,m.m.length-1)],R(m.lv[0],m.lv[1])))}
+const cs=charStats(S.c),c={...cs,name:S.c.name,e:JOBS[S.c.job].e,lv:S.c.lv,hp:S.c.hp==null?cs.maxhp:Math.min(cs.maxhp,S.c.hp),mp:S.c.mp==null?cs.maxmp:Math.min(cs.maxmp,S.c.mp),side:0,isChar:1};
+const party=[c,...S.party.map(id=>S.pets.find(p=>p.id==id)).filter(Boolean).map(p=>({...petStats(p),e:p.tpl[1],lv:p.lv,hp:petStats(p).maxhp,side:0,pet:p}))];
+party.forEach((u,i)=>{u.x=72-(i%2)*14+(i?8:0);u.y=[38,12,62][i]});en.forEach((u,i)=>{u.hp=u.maxhp;u.side=1;u.x=boss?14:[8,22,8,22][i];u.y=boss?25:[10,30,52,70][i]-(i>1?0:0)});
+const units=[...party,...en];B={units,boss};$('arena').innerHTML=units.map(unitHTML).join('');units.forEach((u,i)=>{u.i=i});upd()}
+function upd(){B.units.forEach(u=>{const el=$('u'+u.i);if(!el)return;const b=el.querySelectorAll('.hb i');b[0].style.width=Math.max(0,u.hp/u.maxhp*100)+'%';b[0].style.background=u.hp/u.maxhp<.3?'#e44':'#4c4';if(b[1])b[1].style.width=u.mp/u.maxmp*100+'%';el.classList.toggle('dead',u.hp<=0)})}
+function pop(u,t,heal){const el=$('u'+u.i);if(!el)return;const d=document.createElement('div');d.className='dmg'+(heal?' h':'');d.textContent=t;d.style.left=(u.x+3)+'%';d.style.top=(u.y)+'%';$('arena').appendChild(d);setTimeout(()=>d.remove(),800);if(!heal){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}}
+async function lunge(u){const el=$('u'+u.i);if(!el)return;el.style.transform=`translateX(${u.side==0?-30:30}px)`;await wait(180);el.style.transform=''}
+function hitCalc(a,d,m,magic,critB){const crit=Math.random()<(a.crit+(critB||0));let v=(magic?a.mat:a.atk)*m*(.9+Math.random()*.2)-d.def*(magic?.3:.6);v=Math.max(1,Math.round(v*(crit?1.6:1)));return{v,crit}}
+async function deal(a,d,m,magic,critB){const{v,crit}=hitCalc(a,d,m,magic,critB);d.hp=Math.max(0,d.hp-v);pop(d,(crit?'爆擊 ':'')+v);upd();if(d.hp<=0)log(`💀 ${esc(d.name)} 倒下了`)}
+const alive=s=>B.units.filter(u=>u.side==s&&u.hp>0);
+async function act(u){const foes=alive(1-u.side),allies=alive(u.side);if(!foes.length)return;const tgt=foes[R(0,foes.length-1)];
+if(u.isChar){const j=JOBS[S.c.job],hpPct=u.hp/u.maxhp*100;
+ if(hpPct<S.set.pot&&S.pots.hp>0){S.pots.hp--;const h=Math.round(u.maxhp*.4);u.hp=Math.min(u.maxhp,u.hp+h);pop(u,'+'+h,1);log('🧪 使用生命藥水');upd();await wait(400);return}
+ if(u.mp<10&&S.pots.mp>0&&S.set.pot>0){S.pots.mp--;u.mp=Math.min(u.maxmp,u.mp+Math.round(u.maxmp*.4));log('💧 使用魔力藥水');upd();await wait(300);return}
+ if(S.set.cap&&!B.boss&&S.pets.length<8){const low=foes.filter(f=>f.hp/f.maxhp<.5);if(low.length){const f=low[0],ch=Math.min(.5,.08+(1-f.hp/f.maxhp)*.4-(f.lv-S.c.lv)*.02);await lunge(u);
+  if(Math.random()<ch){f.hp=0;f.caught=1;const p={id:'p'+Date.now()+R(0,999),name:f.name,tpl:f.tpl,lv:f.lv,exp:0};S.pets.push(p);if(S.party.length<2)S.party.push(p.id);S.stats.caps++;pop(f,'捕捉成功！',1);log(`🎉 捕捉到 <b>${esc(f.name)}</b> Lv.${f.lv}！`);upd();save()}else{pop(f,'捕捉失敗');log(`🕸️ 捕捉 ${esc(f.name)} 失敗`)}await wait(400);return}}
+ const heal=j.sk.find(s=>s.k=='heal'),hurt=allies.filter(a=>a.hp/a.maxhp<.55).sort((a,b)=>a.hp/a.maxhp-b.hp/b.maxhp)[0];
+ if(heal&&hurt&&u.mp>=heal.mp){u.mp-=heal.mp;const h=Math.round(u.mat*heal.m);hurt.hp=Math.min(hurt.maxhp,hurt.hp+h);log(`✨ ${esc(u.name)} 施放 ${heal.n}`);pop(hurt,'+'+h,1);upd();await wait(400);return}
+ const opts=j.sk.filter(s=>s.k!='heal'&&u.mp>=s.mp);let sk=null;if(opts.length&&Math.random()<.6){const aoe=opts.find(s=>/aoe|multi/.test(s.k));sk=(aoe&&foes.length>=2)?aoe:opts[R(0,opts.length-1)]}
+ if(sk){u.mp-=sk.mp;log(`⚡ ${esc(u.name)} 施放 <b>${sk.n}</b>`);await lunge(u);
+  if(sk.k=='atk')await deal(u,tgt,sk.m,0,sk.crit);else if(sk.k=='matk')await deal(u,tgt,sk.m,1);
+  else if(sk.k=='aoe'||sk.k=='maoe')for(const f of foes)await deal(u,f,sk.m,sk.k=='maoe');
+  else if(sk.k=='multi')for(let h=0;h<sk.hits;h++){const fs=alive(1);if(!fs.length)break;await deal(u,fs[R(0,fs.length-1)],sk.m);await wait(90)}
+  await wait(300);return}}
+await lunge(u);await deal(u,tgt,1,0);await wait(300)}
+async function battle(){buildBattle();const en=B.units.filter(u=>u.side==1);log(B.boss?`👑 首領 <b>${esc(en[0].name)}</b> 出現了！`:`⚔️ 遭遇 ${en.map(e=>esc(e.name)).join('、')}`);await wait(500);
+for(let round=0;round<40;round++){const order=B.units.filter(u=>u.hp>0).sort((a,b)=>b.spd*(.9+Math.random()*.2)-a.spd*(.9+Math.random()*.2));
+ for(const u of order){if(needReset)return 'reset';if(u.hp<=0)continue;if(!alive(0).length||!alive(1).length)break;await act(u)}
+ const c=B.units[0];if(c.maxmp)c.mp=Math.min(c.maxmp,c.mp+2);upd();if(!alive(0).length||!alive(1).length)break}
+const won=!alive(1).length&&alive(0).length>0,c=B.units[0];S.stats.battles++;
+if(won){let exp=0,gold=0;for(const e of en){if(e.caught)continue;exp+=Math.round((8+e.lv*6)*(e.boss?5:1));gold+=Math.round((3+e.lv*2)*(e.boss?8:1)*(.8+Math.random()*.4))}
+ const up=gainExp(exp);S.gold+=gold;S.kills[S.map]+=en.length;log(`🏆 勝利！獲得 ${exp} EXP、${gold} 金幣`);if(up){log(`🎊 <b>升級！</b> ${esc(S.c.name)} 達到 Lv.${S.c.lv}`);pop(c,'LEVEL UP!',1)}
+ for(const pu of B.units.filter(u=>u.pet)){const pu2=petExp(pu.pet,Math.round(exp*.7));if(pu2)log(`🐾 ${esc(pu.pet.name)} 升到 Lv.${pu.pet.lv}`)}
+ const drops=B.boss?2:(Math.random()<.35?1:0);for(let i=0;i<drops;i++){const it=makeItem(Math.max(...en.map(e=>e.lv)),B.boss?1.5:0);if(gainItem(it))log(`📦 獲得 ${itemName(it)}`);else log('🎒 背包已滿，自動換成金幣')}
+ if(B.boss){S.bossNext=0;if(S.unlocked<=S.map+1&&S.map+1<MAPS.length){S.unlocked=S.map+2;log(`🗺️ 解鎖新地區：<b>${MAPS[S.map+1].n}</b>！`)}S.kills[S.map]=10}
+ S.c.hp=c.hp;S.c.mp=c.mp;if(S.c.hp<c.maxhp*.3){S.c.hp=Math.round(c.maxhp*.5)}}
+else{log('😵 隊伍全滅…在營地休息後重新出發');S.bossNext=0;S.c.hp=null;S.c.mp=null;const g=Math.floor(S.gold*.05);S.gold-=g;if(g)log(`（遺失 ${g} 金幣）`);await wait(1200)}
+if(Math.random()<.3){S.c.hp=null;S.c.mp=null}
+save();hdr();const t=curTab();if(t!='battle')drawTab(t);return won}
+async function loop(){if(running)return;running=true;while(true){needReset=0;const r=await battle();await wait(r==='reset'?100:700)}}
+/* ===== 離線收益 ===== */
+function offline(){const el=Math.min(12*3600e3,Date.now()-(S.t||Date.now()));if(el<60e3)return;const m=MAPS[S.map],lv=(m.lv[0]+m.lv[1])/2,secs=el/1000;
+const battles=Math.floor(secs/15),win=Math.min(1,Math.max(.2,.5+(S.c.lv-lv)*.1)),wins=Math.floor(battles*win),per=2;
+const lowF=S.c.lv>m.lv[1]+3?.3:1,exp=Math.round(wins*per*(8+lv*6)*.5*lowF),gold=Math.round(wins*per*(3+lv*2)*.5),nItems=Math.min(10,Math.floor(wins*.05));
+const lv0=S.c.lv,up=gainExp(exp);S.gold+=gold;S.kills[S.map]+=wins*per;S.stats.battles+=battles;
+const items=[];for(let i=0;i<nItems;i++){const it=makeItem(Math.round(lv));if(gainItem(it))items.push(it)}
+for(const id of S.party){const p=S.pets.find(x=>x.id==id);if(p)petExp(p,Math.round(exp*.7))}save();
+modal(`<h3 style="margin:0 0 6px">🌙 離線收益</h3>離開了 <b>${Math.floor(secs/3600)} 小時 ${Math.floor(secs%3600/60)} 分</b>${el>=12*3600e3?'（上限 12 小時）':''}<br>地點：${m.n}<br>戰鬥 ${battles} 場（勝 ${wins}）<br>獲得 <b>${exp}</b> EXP、<b>${gold}</b> 金幣<br>${up?`🎊 等級 ${lv0} → ${S.c.lv}<br>`:''}${items.length?'裝備：<br>'+items.map(itemName).join('<br>'):''}`)}
+/* ===== 啟動 ===== */
+function start(){$('create').classList.remove('on');$('create').style.display='none';$('main').style.display='block';hdr();offline();log('歡迎來到星砂大陸！自動戰鬥開始。');loop();
+setInterval(save,10000);addEventListener('visibilitychange',()=>{if(document.hidden)save()});addEventListener('pagehide',save)}
+S=load();if(S&&S.c)start();else{S=null;drawJobs()}
+window.__R={get S(){return S},offline,gainExp};
+if('serviceWorker' in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+</script></body></html>
