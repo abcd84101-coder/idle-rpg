@@ -48,100 +48,110 @@ const JOBS={薪水小偷:{e:'🧑‍💼',g:{str:2,vit:3,int:0,agi:1},sk:[{n:'�
 會議殺手:{e:'🗣️',g:{str:0,vit:1,int:4,agi:1},sk:[{n:'冗長會議',mp:10,k:'maoe',m:1.2},{n:'再約時間討論',mp:7,k:'matk',m:2.2}],d:'用開會拖垮全場，藉口力爆表'},
 茶水間情報王:{e:'☕',g:{str:1,vit:2,int:3,agi:0},sk:[{n:'八卦補給',mp:8,k:'heal',m:2.2},{n:'下午茶團購',mp:7,k:'matk',m:1.6}],d:'補血輔助，靠八卦和零食撐住全隊'}};
 const OLDJOB={劍士:'薪水小偷',弓手:'廁所戰神',魔法師:'會議殺手',傳教士:'茶水間情報王'};
-const MAPS=[{n:'辦公座位',lv:[1,5],m:[['急件','📨',.8,1.1,1.4],['打卡機','⏰',1.2,.9,.8],['實習生','🧑‍🎓',1,1,1]],boss:['碎念組長','😤',6]},
-{n:'茶水間',lv:[5,12],m:[['空的咖啡機','🫖',1.3,.9,.8],['八卦同事','🤭',.9,1.1,1.3],['影印機','🖨️',1.2,1.1,.8]],boss:['團購女王經理','💁',14]},
-{n:'會議室',lv:[12,20],m:[['Excel報表','📊',1.1,1.2,1.1],['客訴電話','☎️',.8,1.2,1.5],['簡報投影機','📽️',1.6,1,.6]],boss:['簡報狂魔處長','🧐',22]},
-{n:'主管辦公室',lv:[20,30],m:[['主管','👔',1.2,1.3,1.2],['加班通知','📢',1,1.2,1.4],['年終考核表','📋',1.5,1,.8]],boss:['老闆','🤵',32]},
-{n:'董事會',lv:[30,40],m:[['KPI 指標','📈',1.1,1.3,1.5],['預算刪減令','✂️',1.8,1.2,.6],['董事特助','🕴️',.9,1.5,1.3]],boss:['董事長','👑',42]}];
+const MAPS=[{n:'辦公座位',lv:[1,5],m:[['急件','📨',.8,1.1,1.4,'風',[18, 22, 14, 30, 16]],['打卡機','⏰',1.2,.9,.8,'地',[26, 18, 30, 12, 14]],['實習生','🧑‍🎓',1,1,1,'水',[22, 20, 20, 20, 18]]],boss:['碎念組長','😤',6,'地']},
+{n:'茶水間',lv:[5,12],m:[['空的咖啡機','🫖',1.3,.9,.8,'火',[30, 16, 28, 12, 18]],['八卦同事','🤭',.9,1.1,1.3,'風',[18, 18, 16, 30, 22]],['影印機','🖨️',1.2,1.1,.8,'地',[24, 26, 26, 14, 14]]],boss:['團購女王經理','💁',14,'水']},
+{n:'會議室',lv:[12,20],m:[['Excel報表','📊',1.1,1.2,1.1,'水',[20, 16, 18, 22, 34]],['客訴電話','☎️',.8,1.2,1.5,'火',[18, 30, 14, 30, 18]],['簡報投影機','📽️',1.6,1,.6,'地',[34, 18, 32, 12, 14]]],boss:['簡報狂魔處長','🧐',22,'火']},
+{n:'主管辦公室',lv:[20,30],m:[['主管','👔',1.2,1.3,1.2,'火',[24, 32, 24, 18, 14]],['加班通知','📢',1,1.2,1.4,'風',[18, 22, 18, 32, 22]],['年終考核表','📋',1.5,1,.8,'水',[32, 16, 30, 14, 20]]],boss:['老闆','🤵',32,'風']},
+{n:'董事會',lv:[30,40],m:[['KPI 指標','📈',1.1,1.3,1.5,'風',[20, 30, 16, 32, 16]],['預算刪減令','✂️',1.8,1.2,.6,'地',[36, 20, 34, 10, 14]],['董事特助','🕴️',.9,1.5,1.3,'水',[20, 16, 18, 24, 36]]],boss:['董事長','👑',42,'地']}];
 const QN=['普通','精良','稀有','史詩','傳說'],QM=[1,1.3,1.7,2.3,3.2],QW=[60,25,10,4,1];
 const SLOT={w:['摸魚工具',['雙螢幕','機械鍵盤','假文件夾','萬用藉口本','高速滑鼠','Excel 巨集'],'atk'],a:['防護裝備',['人體工學椅','防窺螢幕膜','連帽外套','辦公室盆栽'],'def'],c:['配件',['降噪耳機','員工識別證','智慧手環'],'spd']};
 const SHOP=[{id:'hp',n:'美式咖啡',e:'☕',p:20,d:'回復 40% 精神'},{id:'mp',n:'手搖飲',e:'🧋',p:30,d:'回復 40% 藉口值'}];
 /* ===== 存檔 ===== */
 let S=null;const KEY='idlerpg_save';
 function save(){if(!S)return;S.t=Date.now();localStorage.setItem(KEY,JSON.stringify(S))}
-function load(){try{const o=JSON.parse(localStorage.getItem(KEY));if(o&&o.c&&!JOBS[o.c.job]){if(OLDJOB[o.c.job]){o.c.job=OLDJOB[o.c.job];o.migrated=1}else return null}return o}catch(e){return null}}
+function load(){try{const o=JSON.parse(localStorage.getItem(KEY));if(o&&o.c&&!JOBS[o.c.job]){if(OLDJOB[o.c.job]){o.c.job=OLDJOB[o.c.job];o.migrated=1}else return null}if(o&&o.c&&!o.chars){o.c.pet=(o.party||[])[0]||null;o.chars=[o.c];o.sel=0;delete o.c;delete o.party;o.v=2}return o&&o.chars&&o.chars.length&&o.chars.every(c=>JOBS[c.job])?o:null}catch(e){return null}}
 /* ===== 角色/寵物數值 ===== */
 function charStats(c){const st={...c.st};let atk=0,def=0,spd=0;for(const k in c.eq){const it=c.eq[k];if(it){atk+=it.atk||0;def+=it.def||0;spd+=it.spd||0}}
 return{maxhp:50+st.vit*12+c.lv*6,maxmp:20+st.int*5+c.lv*2,atk:5+st.str*2.2+atk,mat:5+st.int*2.4+atk*.5,def:2+st.vit*1.1+def,spd:5+st.agi*1.5+spd,crit:.05+st.agi*.002}}
-function mobStats(t,lv,boss){const[n,e,hm,am,sm]=t,b=boss?3.2:1;return{name:n,e,lv,maxhp:Math.round((30+lv*14*hm)*b),atk:(6+lv*3.2*am)*(boss?1.3:1),mat:(6+lv*3*am),def:2+lv*1.5,spd:5+lv*1.6*sm,crit:.05,boss:!!boss,tpl:t}}
-function petStats(p){const s=mobStats(p.tpl,p.lv);return{...s,maxhp:Math.round(s.maxhp*1.1),atk:s.atk*.95,def:s.def*1.1,name:p.name}}
+function mobStats(t,lv,boss){const[n,e,hm,am,sm]=t,b=boss?3.2:1;return{el:t[5],name:n,e,lv,maxhp:Math.round((30+lv*14*hm)*b),atk:(6+lv*3.2*am)*(boss?1.3:1),mat:(6+lv*3*am),def:2+lv*1.5,spd:5+lv*1.6*sm,crit:.05,boss:!!boss,tpl:t}}
+const EL={水:'火',火:'風',風:'地',地:'水'},ELC={地:'#a0522d',水:'#2d6fd1',火:'#d9442b',風:'#2e8b3a'};
+const elMult=(a,d)=>a&&d?(EL[a]==d?1.3:EL[d]==a?.77:1):1,elTag=e=>e?`<span style="color:${ELC[e]};font-weight:bold">[${e}]</span>`:'';
+const AT=['體力','腕力','耐力','敏捷','魔法'];
+function rollGrades(t){const g=(t[6]||[20,20,20,20,20]).map(x=>x-R(0,4));let b=10;while(b-->0)g[R(0,4)]++;return g}
+function petAttrs(p){return p.g.map(x=>x*(p.lv+3)/50)}
+function petStats(p){if(!p.g){p.g=rollGrades(p.tpl)}const[h,w,n,a,m]=petAttrs(p),k=2.2;
+return{name:p.name,e:p.tpl[1],lv:p.lv,el:p.tpl[5],maxhp:Math.round((8*h+2*w+3*n+2*a+m)*k),atk:(.2*h+2.7*w+.3*n+.3*a+.2*m)*k,def:(.2*h+.3*w+3*n+.3*a+.2*m)*k*.5,spd:(.1*h+.2*w+.2*n+2*a+.1*m)*k*.6,mat:(.3*h+3*m)*k*.8,crit:.04+a*.0015,magic:m>w}}
 const needExp=lv=>Math.round(20*lv*lv+30*lv);
 /* ===== 建立角色 ===== */
 let pickJob='劍士';
 function drawJobs(){$('jobs').innerHTML=Object.entries(JOBS).map(([k,j])=>`<div class="${k==pickJob?'sel':''}" onclick="pickJob='${k}';drawJobs()"><div style="font-size:34px">${j.e}</div><b>${k}</b><br><small>${j.d}</small><br><small>${j.sk.map(s=>s.n).join('・')}</small></div>`).join('')}
-function newSave(name,job){const g=JOBS[job].g;return{v:1,t:Date.now(),c:{name,job,lv:1,exp:0,pts:0,st:{str:5+g.str,vit:5+g.vit,int:5+g.int,agi:5+g.agi},eq:{w:null,a:null,c:null},hp:null,mp:null},
-gold:50,pots:{hp:3,mp:2},bag:[],pets:[],party:[],map:0,unlocked:1,kills:[0,0,0,0,0],bossNext:0,set:{spd:1,cap:false,auto:true,pot:30},stats:{battles:0,caps:0}}}
-function createChar(){const n=$('cname').value.trim().slice(0,8)||'小職員';S=newSave(n,pickJob);save();start()}
+function mkChar(name,job){const g=JOBS[job].g;return{name,job,lv:1,exp:0,pts:0,st:{str:5+g.str,vit:5+g.vit,int:5+g.int,agi:5+g.agi},eq:{w:null,a:null,c:null},hp:null,mp:null,pet:null}}
+function newSave(name,job){return{v:2,t:Date.now(),chars:[mkChar(name,job)],sel:0,
+gold:50,pots:{hp:3,mp:2},bag:[],pets:[],map:0,unlocked:1,kills:[0,0,0,0,0],bossNext:0,set:{spd:1,cap:false,auto:true,pot:30},stats:{battles:0,caps:0}}}
+function createChar(){const n=$('cname').value.trim().slice(0,8)||'小職員';if(S&&S.chars){if(S.chars.length>=3)return modal('最多 3 位員工');S.chars.push(mkChar(n,pickJob));S.sel=S.chars.length-1;save();$('create').style.display='none';$('main').style.display='block';needReset=1;hdr();drawChar();return}S=newSave(n,pickJob);save();start()}
+function hire(){if(S.chars.length>=3)return modal('最多 3 位員工');$('main').style.display='none';$('create').style.display='block';$('create').classList.add('on');$('cname').value='';drawJobs()}
+function fire(){if(S.chars.length<2)return;const c=C();if(!confirm('確定開除 '+c.name+'？裝備會放回抽屜'))return;for(const k in c.eq)if(c.eq[k])S.bag.push(c.eq[k]);S.chars.splice(S.sel,1);S.sel=0;save();needReset=1;drawChar();hdr()}
+const C=()=>S.chars[S.sel]||S.chars[0],avgLv=()=>S.chars.reduce((a,c)=>a+c.lv,0)/S.chars.length;
 /* ===== 介面 ===== */
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x==b));document.querySelectorAll('#main .tab').forEach(t=>t.classList.toggle('on',t.id=='t-'+b.dataset.t));drawTab(b.dataset.t)});
 function drawTab(t){({char:drawChar,pet:drawPet,bag:drawBag,map:drawMap,set:drawSet}[t]||(()=>{}))()}
 const curTab=()=>document.querySelector('nav button.on').dataset.t;
-function hdr(){const c=S.c;$('hd').innerHTML=`${JOBS[c.job].e} <b>${esc(c.name)}</b> Lv.${c.lv} <span style="display:inline-block;width:60px" class="bar"><i style="width:${c.exp/needExp(c.lv)*100}%"></i></span>`;$('gold').textContent=S.gold;
+function hdr(){const c=C();$('hd').innerHTML=`${JOBS[c.job].e} <b>${esc(c.name)}</b> Lv.${c.lv} <span style="display:inline-block;width:60px" class="bar"><i style="width:${c.exp/needExp(c.lv)*100}%"></i></span>`;$('gold').textContent=S.gold;
 $('mapName').textContent='📍 '+MAPS[S.map].n+` (Lv.${MAPS[S.map].lv.join('-')})`;$('killInfo').textContent=`搞定 ${S.kills[S.map]}/10　☕${S.pots.hp} 🧋${S.pots.mp}`;$('bossBtn').disabled=S.kills[S.map]<10;$('spdBtn').textContent='x'+S.set.spd;$('capT').checked=S.set.cap}
 function log(t){const l=$('log');const d=document.createElement('div');d.innerHTML=t;l.appendChild(d);while(l.children.length>80)l.firstChild.remove();l.scrollTop=1e9}
 function modal(h){$('mbox').innerHTML=h+'<button style="width:100%;margin-top:8px" onclick="$(\'modal\').style.display=\'none\'">確定</button>';$('modal').style.display='flex'}
-function drawChar(){const c=S.c,s=charStats(c),j=JOBS[c.job];
-$('t-char').innerHTML=`<div class="box"><div style="font-size:44px;text-align:center">${j.e}</div><div style="text-align:center"><b>${esc(c.name)}</b>　${c.job} Lv.${c.lv}<br><small>EXP ${c.exp}/${needExp(c.lv)}</small></div></div>
+function drawChar(){const c=C(),s=charStats(c),j=JOBS[c.job];
+$('t-char').innerHTML=`<div class="box" style="display:flex;gap:6px;flex-wrap:wrap">${S.chars.map((x,k)=>`<button class="${k==S.sel?'y':'g'}" onclick="S.sel=${k};save();drawChar();hdr()">${JOBS[x.job].e} ${esc(x.name)} Lv.${x.lv}</button>`).join('')}${S.chars.length<3?'<button onclick="hire()">＋ 招募員工</button>':''}${S.chars.length>1?`<button class="r" onclick="fire()">開除</button>`:''}</div><div class="box"><div style="font-size:44px;text-align:center">${j.e}</div><div style="text-align:center"><b>${esc(c.name)}</b>　${c.job} Lv.${c.lv}<br><small>EXP ${c.exp}/${needExp(c.lv)}</small></div></div>
 <div class="box"><b>摸魚能力</b>（剩餘點數：<b>${c.pts}</b>）<div class="grid2" style="margin-top:4px">${[['str','摸魚力'],['vit','耐罵度'],['int','藉口力'],['agi','閃避速度']].map(([k,n])=>`<div>${n}：${c.st[k]} <button ${c.pts?'':'disabled'} onclick="addPt('${k}')">＋</button></div>`).join('')}</div>
 <label style="font-size:.85em"><input type="checkbox" style="width:auto" ${S.set.auto?'checked':''} onchange="S.set.auto=this.checked;save()"> 升職自動分配點數（依職業）</label></div>
 <div class="box grid2"><div>精神值 ${s.maxhp}</div><div>藉口值 ${s.maxmp}</div><div>摸魚攻擊 ${Math.round(s.atk)}</div><div>話術攻擊 ${Math.round(s.mat)}</div><div>抗壓 ${Math.round(s.def)}</div><div>閃避速度 ${Math.round(s.spd)}</div><div>神來一筆 ${(s.crit*100).toFixed(1)}%</div></div>
 <div class="box"><b>摸魚絕技</b>${j.sk.map(k=>`<div class="it"><span>${k.n}</span><small>藉口值 ${k.mp}</small></div>`).join('')}</div>
 <div class="box"><b>裝備</b>${Object.keys(SLOT).map(k=>{const it=c.eq[k];return`<div class="it"><span>${SLOT[k][0]}：${it?itemName(it):'<small>無</small>'}</span>${it?`<button class="g" onclick="unequip('${k}')">卸下</button>`:''}</div>`}).join('')}</div>`}
-function addPt(k){if(S.c.pts<=0)return;S.c.pts--;S.c.st[k]++;save();drawChar();hdr()}
+function addPt(k){if(C().pts<=0)return;C().pts--;C().st[k]++;save();drawChar();hdr()}
 function itemName(it){return`<span class="q${it.q}">[${QN[it.q]}] ${it.n}</span> <small>${it.atk?'摸魚+'+it.atk:''}${it.def?' 抗壓+'+it.def:''}${it.spd?' 速度+'+it.spd:''}</small>`}
 function drawBag(){$('t-bag').innerHTML=`<div class="box"><b>🏪 公司福利社</b>${SHOP.map(s=>`<div class="it"><span>${s.e} ${s.n} <small>${s.d}（持有 ${S.pots[s.id]}）</small></span><span><button class="y" onclick="buy('${s.id}',1)">${s.p} 元</button> <button class="y" onclick="buy('${s.id}',10)">x10</button></span></div>`).join('')}
 <small>精神低於 ${S.set.pot}% 時自動喝咖啡</small></div>
 <div class="box"><b>🎒 抽屜（${S.bag.length}/30）</b> <button class="g" style="float:right" onclick="sellAll()">賣掉普通/精良</button>${S.bag.length?S.bag.map((it,i)=>`<div class="it"><span>${SLOT[it.s][0]}・${itemName(it)} <small>Lv.${it.lv}</small></span><span style="white-space:nowrap"><button onclick="equip(${i})">裝備</button> <button class="g" onclick="sell(${i})">${price(it)} 元</button></span></div>`).join(''):'<p><small>抽屜空空的</small></p>'}</div>`}
 const price=it=>Math.round((5+it.lv*2)*QM[it.q]*QM[it.q]);
 function buy(id,n){const s=SHOP.find(x=>x.id==id);if(S.gold<s.p*n)return modal('薪水不夠！再撐到發薪日吧');S.gold-=s.p*n;S.pots[id]+=n;save();drawBag();hdr()}
-function equip(i){const it=S.bag.splice(i,1)[0],old=S.c.eq[it.s];S.c.eq[it.s]=it;if(old)S.bag.push(old);save();drawBag();hdr()}
-function unequip(k){if(S.bag.length>=30)return modal('抽屜已滿');S.bag.push(S.c.eq[k]);S.c.eq[k]=null;save();drawChar()}
+function equip(i){const it=S.bag.splice(i,1)[0],old=C().eq[it.s];C().eq[it.s]=it;if(old)S.bag.push(old);save();drawBag();hdr()}
+function unequip(k){if(S.bag.length>=30)return modal('抽屜已滿');S.bag.push(C().eq[k]);C().eq[k]=null;save();drawChar()}
 function sell(i){S.gold+=price(S.bag[i]);S.bag.splice(i,1);save();drawBag();hdr()}
 function sellAll(){let g=0;S.bag=S.bag.filter(it=>{if(it.q<=1){g+=price(it);return false}return true});S.gold+=g;save();drawBag();hdr();if(g)modal('二手拍賣獲得 '+g+' 元薪水')}
-function drawPet(){$('t-pet').innerHTML=`<div class="box"><b>🤝 同事小幫手（${S.pets.length}/8）</b><br><small>最多 2 位一起摸魚。開啟「收編模式」後，會嘗試收編快撐不住的對手當小幫手（大魔王無法收編）。</small></div>`+
-(S.pets.length?S.pets.map((p,i)=>{const s=petStats(p),on=S.party.includes(p.id);return`<div class="box it"><span style="font-size:30px">${p.tpl[1]}</span><span style="flex:1"><b>${esc(p.name)}</b> Lv.${p.lv} ${on?'⭐摸魚中':''}<br><small>HP ${s.maxhp} 攻 ${Math.round(s.atk)} 防 ${Math.round(s.def)} 速 ${Math.round(s.spd)}</small><div class="bar"><i style="width:${p.exp/needExp(p.lv)*100}%"></i></div></span>
-<span style="display:flex;flex-direction:column;gap:3px"><button onclick="togglePet('${p.id}')">${on?'休息':'一起摸'}</button><button class="g" onclick="renamePet(${i})">改名</button><button class="r" onclick="freePet(${i})">解散</button></span></div>`}).join(''):'<p><small>還沒有小幫手，開啟收編模式拉個同事下水吧！</small></p>')}
-function togglePet(id){const i=S.party.indexOf(id);if(i>=0)S.party.splice(i,1);else{if(S.party.length>=2)return modal('最多 2 位小幫手一起摸魚');S.party.push(id)}save();drawPet();needReset=1}
+function drawPet(){$('t-pet').innerHTML=`<div class="box"><b>🤝 同事小幫手（${S.pets.length}/8）</b><br><small>每位員工可帶 1 位小幫手（目前選擇的員工：${esc(C().name)}）。開啟「收編模式」後，會嘗試收編快撐不住的對手當小幫手（大魔王無法收編）。<br>每位小幫手有 5 項成長檔次（體力/腕力/耐力/敏捷/魔法），收編時隨機浮動；屬性相剋：水→火→風→地→水（剋制 ×1.3，被剋 ×0.77）。</small></div>`+
+(S.pets.length?S.pets.map((p,i)=>{const s=petStats(p),owner=S.chars.find(c=>c.pet==p.id),on=!!owner;return`<div class="box it"><span style="font-size:30px">${p.tpl[1]}</span><span style="flex:1"><b>${esc(p.name)}</b> ${elTag(p.tpl[5])} Lv.${p.lv} ${on?'⭐跟著 '+esc(owner.name):''}<br><small>精神 ${s.maxhp} 攻 ${Math.round(s.atk)} 防 ${Math.round(s.def)} 速 ${Math.round(s.spd)} 魔 ${Math.round(s.mat)}</small><br><small>檔次：${p.g.map((x,k)=>AT[k]+x).join(' ')}（總 ${p.g.reduce((a,b)=>a+b)}）</small><div class="bar"><i style="width:${p.exp/needExp(p.lv)*100}%"></i></div></span>
+<span style="display:flex;flex-direction:column;gap:3px"><button onclick="togglePet('${p.id}')">${on?'休息':'給 '+esc(C().name)}</button><button class="g" onclick="renamePet(${i})">改名</button><button class="r" onclick="freePet(${i})">解散</button></span></div>`}).join(''):'<p><small>還沒有小幫手，開啟收編模式拉個同事下水吧！</small></p>')}
+function togglePet(id){const o=S.chars.find(c=>c.pet==id);if(o)o.pet=null;else C().pet=id;save();drawPet();needReset=1}
 function renamePet(i){const n=prompt('新名字',S.pets[i].name);if(n){S.pets[i].name=n.trim().slice(0,8)||S.pets[i].name;save();drawPet()}}
-function freePet(i){if(!confirm('確定讓 '+S.pets[i].name+' 回去上班？'))return;S.party=S.party.filter(x=>x!=S.pets[i].id);S.pets.splice(i,1);save();drawPet();needReset=1}
-function drawMap(){$('t-map').innerHTML=MAPS.map((m,i)=>`<div class="box it"><span><b>${i<S.unlocked?'':'🔒 '}${m.n}</b> <small>Lv.${m.lv.join('-')}</small><br><small>${m.m.map(x=>x[1]+x[0]).join(' ')}　大魔王：${m.boss[1]}${m.boss[0]}</small></span><button ${i<S.unlocked?'':'disabled'} onclick="goMap(${i})">${i==S.map?'目前位置':'移動'}</button></div>`).join('')+'<small>搞定 10 件麻煩事後可挑戰大魔王，打倒他就能解鎖下一個樓層。</small>'}
+function freePet(i){if(!confirm('確定讓 '+S.pets[i].name+' 回去上班？'))return;S.chars.forEach(c=>{if(c.pet==S.pets[i].id)c.pet=null});S.pets.splice(i,1);save();drawPet();needReset=1}
+function drawMap(){$('t-map').innerHTML=MAPS.map((m,i)=>`<div class="box it"><span><b>${i<S.unlocked?'':'🔒 '}${m.n}</b> <small>Lv.${m.lv.join('-')}</small><br><small>${m.m.map(x=>x[1]+x[0]+'('+x[5]+')').join(' ')}　大魔王：${m.boss[1]}${m.boss[0]}</small></span><button ${i<S.unlocked?'':'disabled'} onclick="goMap(${i})">${i==S.map?'目前位置':'移動'}</button></div>`).join('')+'<small>搞定 10 件麻煩事後可挑戰大魔王，打倒他就能解鎖下一個樓層。</small>'}
 function goMap(i){S.map=i;S.bossNext=0;save();drawMap();hdr();needReset=1;log('🏢 溜到 '+MAPS[i].n)}
 function drawSet(){$('t-set').innerHTML=`<div class="box"><b>摸魚速度</b><br><button onclick="S.set.spd=1;save();hdr();drawSet()" class="${S.set.spd==1?'y':'g'}">x1</button> <button onclick="S.set.spd=2;save();hdr();drawSet()" class="${S.set.spd==2?'y':'g'}">x2</button></div>
 <div class="box"><b>自動喝咖啡</b>：精神低於 <select style="width:auto" onchange="S.set.pot=+this.value;save()">${[0,20,30,50].map(v=>`<option ${S.set.pot==v?'selected':''} value="${v}">${v}%</option>`).join('')}</select></div>
 <div class="box"><b>存檔匯出 / 匯入</b><textarea id="ioTxt" rows="4" placeholder="匯出後複製這段文字保存；匯入時貼上"></textarea><div style="display:flex;gap:6px;margin-top:4px"><button onclick="exportSave()">匯出</button><button class="y" onclick="importSave()">匯入</button><button class="r" style="margin-left:auto" onclick="if(confirm('確定離職並刪除所有進度？')){localStorage.removeItem(KEY);location.reload()}">離職重來</button></div></div>
 <div class="box"><small>統計：摸魚 ${S.stats.battles} 回・收編 ${S.stats.caps} 位<br>本遊戲純屬虛構，如有雷同，那就是你家公司。</small></div>`}
 function exportSave(){save();$('ioTxt').value=btoa(unescape(encodeURIComponent(localStorage.getItem(KEY))))}
-function importSave(){try{const o=JSON.parse(decodeURIComponent(escape(atob($('ioTxt').value.trim()))));if(!o||!o.c||!o.c.job||!JOBS[o.c.job])throw 0;localStorage.setItem(KEY,JSON.stringify(o));location.reload()}catch(e){modal('存檔格式錯誤')}}
+function importSave(){try{const o=JSON.parse(decodeURIComponent(escape(atob($('ioTxt').value.trim()))));if(!o||!((o.c&&JOBS[o.c.job])||(o.chars&&o.chars.every(c=>JOBS[c.job]))))throw 0;localStorage.setItem(KEY,JSON.stringify(o));location.reload()}catch(e){modal('存檔格式錯誤')}}
 function toggleSpeed(){S.set.spd=S.set.spd==1?2:1;save();hdr()}
 /* ===== 掉落/經驗 ===== */
 function rollQ(bonus){let r=Math.random()*100,q=0;const w=QW.map((x,i)=>i?x*(1+bonus):x),t=w.reduce((a,b)=>a+b);r=Math.random()*t;for(;q<4;q++){if(r<w[q])break;r-=w[q]}return q}
 function makeItem(lv,bonus){const s=['w','a','c'][R(0,2)],q=rollQ(bonus||0),def=SLOT[s],v=Math.max(1,Math.round((2+lv*1.2)*QM[q]*(.85+Math.random()*.3)));
 const it={s,q,lv,n:def[1][R(0,def[1].length-1)]};it[def[2]]=s=='c'?Math.max(1,Math.round(v*.5)):v;if(q>=2&&s!='c')it.spd=Math.round(v*.2);return it}
 function gainItem(it){if(S.bag.length>=30){S.gold+=price(it);return false}S.bag.push(it);return true}
-function autoAlloc(){const g=JOBS[S.c.job].g,keys=Object.keys(g),tot=keys.reduce((a,k)=>a+g[k],0)||1;while(S.c.pts>0){let r=Math.random()*tot;for(const k of keys){if((r-=g[k])<0){S.c.st[k]++;break}}S.c.pts--}}
-function gainExp(x){const c=S.c;c.exp+=x;let up=0;while(c.exp>=needExp(c.lv)){c.exp-=needExp(c.lv);c.lv++;c.pts+=5;up++}if(up&&S.set.auto)autoAlloc();return up}
+function autoAlloc(c){const g=JOBS[c.job].g,keys=Object.keys(g),tot=keys.reduce((a,k)=>a+g[k],0)||1;while(c.pts>0){let r=Math.random()*tot;for(const k of keys){if((r-=g[k])<0){c.st[k]++;break}}c.pts--}}
+function gainExp(c,x){c.exp+=x;let up=0;while(c.exp>=needExp(c.lv)){c.exp-=needExp(c.lv);c.lv++;c.pts+=5;up++}if(up&&S.set.auto)autoAlloc(c);return up}
 function petExp(p,x){p.exp+=x;let up=0;while(p.exp>=needExp(p.lv)){p.exp-=needExp(p.lv);p.lv++;up++}return up}
 /* ===== 戰鬥 ===== */
 let B=null,needReset=0,running=false;const wait=ms=>new Promise(r=>setTimeout(r,ms/S.set.spd));
-function unitHTML(u,i){return`<div class="u ${u.boss?'boss':''}" id="u${i}" style="left:${u.x}%;top:${u.y}%"><div class="e">${u.e}</div><div class="n">${esc(u.name)} Lv.${u.lv}</div><div class="hb"><i></i></div>${u.side==0&&u.maxmp?'<div class="hb mb"><i></i></div>':''}</div>`}
+function unitHTML(u,i){return`<div class="u ${u.boss?'boss':''}" id="u${i}" style="left:${u.x}%;top:${u.y}%"><div class="e">${u.e}</div><div class="n">${u.el?u.el+'・':''}${esc(u.name)} Lv.${u.lv}</div><div class="hb"><i></i></div>${u.side==0&&u.maxmp?'<div class="hb mb"><i></i></div>':''}</div>`}
 function buildBattle(){const m=MAPS[S.map],boss=S.bossNext&&S.kills[S.map]>=10;const en=[];
-if(boss)en.push(mobStats([m.boss[0],m.boss[1],1.4,1.2,1],m.boss[2],1));else{const n=R(1,Math.min(4,1+Math.floor(S.c.lv/3)));for(let i=0;i<n;i++)en.push(mobStats(m.m[R(0,m.m.length-1)],R(m.lv[0],m.lv[1])))}
-const cs=charStats(S.c),c={...cs,name:S.c.name,e:JOBS[S.c.job].e,lv:S.c.lv,hp:S.c.hp==null?cs.maxhp:Math.min(cs.maxhp,S.c.hp),mp:S.c.mp==null?cs.maxmp:Math.min(cs.maxmp,S.c.mp),side:0,isChar:1};
-const party=[c,...S.party.map(id=>S.pets.find(p=>p.id==id)).filter(Boolean).map(p=>({...petStats(p),e:p.tpl[1],lv:p.lv,hp:petStats(p).maxhp,side:0,pet:p}))];
-party.forEach((u,i)=>{u.x=72-(i%2)*14+(i?8:0);u.y=[38,12,62][i]});en.forEach((u,i)=>{u.hp=u.maxhp;u.side=1;u.x=boss?14:[8,22,8,22][i];u.y=boss?25:[10,30,52,70][i]-(i>1?0:0)});
+if(boss)en.push(mobStats([m.boss[0],m.boss[1],1.4,1.2,1,m.boss[3]],m.boss[2],1));else{const n=R(1,Math.min(3+S.chars.length,1+Math.floor(avgLv()/3)+S.chars.length-1));for(let i=0;i<n;i++)en.push(mobStats(m.m[R(0,m.m.length-1)],R(m.lv[0],m.lv[1])))}
+const party=[];S.chars.forEach((ch,k)=>{const cs=charStats(ch),y=S.chars.length==1?38:[8,38,68][k]-(S.chars.length==2?k*0-0:0);
+ party.push({...cs,name:ch.name,e:JOBS[ch.job].e,lv:ch.lv,hp:ch.hp==null?cs.maxhp:Math.min(cs.maxhp,ch.hp),mp:ch.mp==null?cs.maxmp:Math.min(cs.maxmp,ch.mp),side:0,isChar:1,ch,x:76,y});
+ const p=ch.pet&&S.pets.find(x=>x.id==ch.pet);if(p){const ps=petStats(p);party.push({...ps,e:p.tpl[1],lv:p.lv,hp:ps.maxhp,side:0,pet:p,x:58,y:y+6})}});en.forEach((u,i)=>{u.hp=u.maxhp;u.side=1;u.x=boss?14:[8,24,8,24,8,24][i];u.y=boss?25:[6,22,38,54,70,30][i]});
 const units=[...party,...en];B={units,boss};$('arena').innerHTML=units.map(unitHTML).join('');units.forEach((u,i)=>{u.i=i});upd()}
 function upd(){B.units.forEach(u=>{const el=$('u'+u.i);if(!el)return;const b=el.querySelectorAll('.hb i');b[0].style.width=Math.max(0,u.hp/u.maxhp*100)+'%';b[0].style.background=u.hp/u.maxhp<.3?'#e44':'#4c4';if(b[1])b[1].style.width=u.mp/u.maxmp*100+'%';el.classList.toggle('dead',u.hp<=0)})}
 function pop(u,t,heal){const el=$('u'+u.i);if(!el)return;const d=document.createElement('div');d.className='dmg'+(heal?' h':'');d.textContent=t;d.style.left=(u.x+3)+'%';d.style.top=(u.y)+'%';$('arena').appendChild(d);setTimeout(()=>d.remove(),800);if(!heal){el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')}}
 async function lunge(u){const el=$('u'+u.i);if(!el)return;el.style.transform=`translateX(${u.side==0?-30:30}px)`;await wait(180);el.style.transform=''}
-function hitCalc(a,d,m,magic,critB){const crit=Math.random()<(a.crit+(critB||0));let v=(magic?a.mat:a.atk)*m*(.9+Math.random()*.2)-d.def*(magic?.3:.6);v=Math.max(1,Math.round(v*(crit?1.6:1)));return{v,crit}}
+function hitCalc(a,d,m,magic,critB){const crit=Math.random()<(a.crit+(critB||0));let v=(magic?a.mat:a.atk)*m*(.9+Math.random()*.2)-d.def*(magic?.3:.6);v=Math.max(1,Math.round(v*(crit?1.6:1)*elMult(a.el,d.el)));return{v,crit}}
 async function deal(a,d,m,magic,critB){const{v,crit}=hitCalc(a,d,m,magic,critB);d.hp=Math.max(0,d.hp-v);pop(d,(crit?'爆擊 ':'')+v);upd();if(d.hp<=0)log(`💤 ${esc(d.name)} ${d.side==1?'被搞定了':'撐不住了'}`)}
 const alive=s=>B.units.filter(u=>u.side==s&&u.hp>0);
 async function act(u){const foes=alive(1-u.side),allies=alive(u.side);if(!foes.length)return;const tgt=foes[R(0,foes.length-1)];
-if(u.isChar){const j=JOBS[S.c.job],hpPct=u.hp/u.maxhp*100;
+if(u.isChar){const j=JOBS[u.ch.job],hpPct=u.hp/u.maxhp*100;
  if(hpPct<S.set.pot&&S.pots.hp>0){S.pots.hp--;const h=Math.round(u.maxhp*.4);u.hp=Math.min(u.maxhp,u.hp+h);pop(u,'+'+h,1);log('☕ 灌了一杯美式咖啡');upd();await wait(400);return}
  if(u.mp<10&&S.pots.mp>0&&S.set.pot>0){S.pots.mp--;u.mp=Math.min(u.maxmp,u.mp+Math.round(u.maxmp*.4));log('🧋 喝了一杯手搖飲');upd();await wait(300);return}
- if(S.set.cap&&!B.boss&&S.pets.length<8){const low=foes.filter(f=>f.hp/f.maxhp<.5);if(low.length){const f=low[0],ch=Math.min(.5,.08+(1-f.hp/f.maxhp)*.4-(f.lv-S.c.lv)*.02);await lunge(u);
-  if(Math.random()<ch){f.hp=0;f.caught=1;const p={id:'p'+Date.now()+R(0,999),name:f.name,tpl:f.tpl,lv:f.lv,exp:0};S.pets.push(p);if(S.party.length<2)S.party.push(p.id);S.stats.caps++;pop(f,'收編成功！',1);log(`🎉 <b>${esc(f.name)}</b> Lv.${f.lv} 被你拉下水，成為摸魚小幫手！`);upd();save()}else{pop(f,'收編失敗');log(`🙅 ${esc(f.name)} 拒絕一起摸魚`)}await wait(400);return}}
+ if(S.set.cap&&!B.boss&&!B.capTried&&S.pets.length<8){const low=foes.filter(f=>f.hp/f.maxhp<.5);if(low.length){B.capTried=1;const f=low[0],ch=Math.min(.5,.08+(1-f.hp/f.maxhp)*.4-(f.lv-u.lv)*.02);await lunge(u);
+  if(Math.random()<ch){f.hp=0;f.caught=1;const p={id:'p'+Date.now()+R(0,999),name:f.name,tpl:f.tpl,lv:f.lv,exp:0,g:rollGrades(f.tpl)};S.pets.push(p);const free=S.chars.find(ch=>!ch.pet);if(free)free.pet=p.id;S.stats.caps++;pop(f,'收編成功！',1);log(`🎉 <b>${esc(f.name)}</b> Lv.${f.lv} 被你拉下水，成為摸魚小幫手！檔次 ${p.g.reduce((a,b)=>a+b)}/${f.tpl[6]?f.tpl[6].reduce((a,b)=>a+b)+10:'?'}`);upd();save()}else{pop(f,'收編失敗');log(`🙅 ${esc(f.name)} 拒絕一起摸魚`)}await wait(400);return}}
  const heal=j.sk.find(s=>s.k=='heal'),hurt=allies.filter(a=>a.hp/a.maxhp<.55).sort((a,b)=>a.hp/a.maxhp-b.hp/b.maxhp)[0];
  if(heal&&hurt&&u.mp>=heal.mp){u.mp-=heal.mp;const h=Math.round(u.mat*heal.m);hurt.hp=Math.min(hurt.maxhp,hurt.hp+h);log(`✨ ${esc(u.name)} 使出 ${heal.n}`);pop(hurt,'+'+h,1);upd();await wait(400);return}
  const opts=j.sk.filter(s=>s.k!='heal'&&u.mp>=s.mp);let sk=null;if(opts.length&&Math.random()<.6){const aoe=opts.find(s=>/aoe|multi/.test(s.k));sk=(aoe&&foes.length>=2)?aoe:opts[R(0,opts.length-1)]}
@@ -150,34 +160,35 @@ if(u.isChar){const j=JOBS[S.c.job],hpPct=u.hp/u.maxhp*100;
   else if(sk.k=='aoe'||sk.k=='maoe')for(const f of foes)await deal(u,f,sk.m,sk.k=='maoe');
   else if(sk.k=='multi')for(let h=0;h<sk.hits;h++){const fs=alive(1);if(!fs.length)break;await deal(u,fs[R(0,fs.length-1)],sk.m);await wait(90)}
   await wait(300);return}}
-await lunge(u);await deal(u,tgt,1,0);await wait(300)}
+await lunge(u);await deal(u,tgt,1,!!u.magic);await wait(300)}
 async function battle(){buildBattle();const en=B.units.filter(u=>u.side==1);log(B.boss?`🚨 大魔王 <b>${esc(en[0].name)}</b> 走過來了！`:`📌 突然冒出：${en.map(e=>esc(e.name)).join('、')}`);await wait(500);
 for(let round=0;round<40;round++){const order=B.units.filter(u=>u.hp>0).sort((a,b)=>b.spd*(.9+Math.random()*.2)-a.spd*(.9+Math.random()*.2));
  for(const u of order){if(needReset)return 'reset';if(u.hp<=0)continue;if(!alive(0).length||!alive(1).length)break;await act(u)}
- const c=B.units[0];if(c.maxmp)c.mp=Math.min(c.maxmp,c.mp+2);upd();if(!alive(0).length||!alive(1).length)break}
-const won=!alive(1).length&&alive(0).length>0,c=B.units[0];S.stats.battles++;
+ B.units.filter(u=>u.isChar).forEach(c=>c.mp=Math.min(c.maxmp,c.mp+2));upd();if(!alive(0).length||!alive(1).length)break}
+const won=!alive(1).length&&alive(0).length>0,CU=B.units.filter(u=>u.isChar);S.stats.battles++;
 if(won){let exp=0,gold=0;for(const e of en){if(e.caught)continue;exp+=Math.round((8+e.lv*6)*(e.boss?5:1));gold+=Math.round((3+e.lv*2)*(e.boss?8:1)*(.8+Math.random()*.4))}
- const up=gainExp(exp);S.gold+=gold;S.kills[S.map]+=en.length;log(`🏆 成功摸過去！獲得 ${exp} EXP、${gold} 元薪水`);if(up){log(`🎊 <b>升職！</b> ${esc(S.c.name)} 晉升到 Lv.${S.c.lv}`);pop(c,'升職加薪!',1)}
+ S.gold+=gold;S.kills[S.map]+=en.length;const share=Math.round(exp*(1+.25*(CU.length-1))/CU.length);log(`🏆 成功摸過去！每人獲得 ${share} EXP、共 ${gold} 元薪水`);
+ for(const u of CU){if(gainExp(u.ch,share)){log(`🎊 <b>升職！</b> ${esc(u.ch.name)} 晉升到 Lv.${u.ch.lv}`);pop(u,'升職加薪!',1)}}exp=share;
  for(const pu of B.units.filter(u=>u.pet)){const pu2=petExp(pu.pet,Math.round(exp*.7));if(pu2)log(`🤝 小幫手 ${esc(pu.pet.name)} 升到 Lv.${pu.pet.lv}`)}
  const drops=B.boss?2:(Math.random()<.35?1:0);for(let i=0;i<drops;i++){const it=makeItem(Math.max(...en.map(e=>e.lv)),B.boss?1.5:0);if(gainItem(it))log(`📦 撿到 ${itemName(it)}`);else log('🎒 抽屜已滿，直接二手拍賣換薪水')}
  if(B.boss){S.bossNext=0;if(S.unlocked<=S.map+1&&S.map+1<MAPS.length){S.unlocked=S.map+2;log(`🛗 解鎖新樓層：<b>${MAPS[S.map+1].n}</b>！`)}S.kills[S.map]=10}
- S.c.hp=c.hp;S.c.mp=c.mp;if(S.c.hp<c.maxhp*.3){S.c.hp=Math.round(c.maxhp*.5)}}
-else{log('😱 摸魚被抓包！去廁所冷靜一下再回來');S.bossNext=0;S.c.hp=null;S.c.mp=null;const g=Math.floor(S.gold*.05);S.gold-=g;if(g)log(`（被扣了 ${g} 元薪水）`);await wait(1200)}
-if(Math.random()<.3){S.c.hp=null;S.c.mp=null}
+ for(const u of CU){u.ch.hp=Math.max(u.hp,Math.round(u.maxhp*.5*(u.hp<u.maxhp*.3)));u.ch.mp=u.mp}}
+else{log('😱 摸魚被抓包！去廁所冷靜一下再回來');S.bossNext=0;S.chars.forEach(ch=>{ch.hp=null;ch.mp=null});const g=Math.floor(S.gold*.05);S.gold-=g;if(g)log(`（被扣了 ${g} 元薪水）`);await wait(1200)}
+if(Math.random()<.3)S.chars.forEach(ch=>{ch.hp=null;ch.mp=null})
 save();hdr();const t=curTab();if(t!='battle')drawTab(t);return won}
 async function loop(){if(running)return;running=true;while(true){needReset=0;const r=await battle();await wait(r==='reset'?100:700)}}
 /* ===== 離線收益 ===== */
 function offline(){const el=Math.min(12*3600e3,Date.now()-(S.t||Date.now()));if(el<60e3)return;const m=MAPS[S.map],lv=(m.lv[0]+m.lv[1])/2,secs=el/1000;
-const battles=Math.floor(secs/15),win=Math.min(1,Math.max(.2,.5+(S.c.lv-lv)*.1)),wins=Math.floor(battles*win),per=2;
-const lowF=S.c.lv>m.lv[1]+3?.3:1,exp=Math.round(wins*per*(8+lv*6)*.5*lowF),gold=Math.round(wins*per*(3+lv*2)*.5),nItems=Math.min(10,Math.floor(wins*.05));
-const lv0=S.c.lv,up=gainExp(exp);S.gold+=gold;S.kills[S.map]+=wins*per;S.stats.battles+=battles;
+const battles=Math.floor(secs/15),win=Math.min(1,Math.max(.2,.5+(avgLv()-lv)*.1+(S.chars.length-1)*.1)),wins=Math.floor(battles*win),per=2;
+const lowF=avgLv()>m.lv[1]+3?.3:1,exp=Math.round(wins*per*(8+lv*6)*.5*lowF),gold=Math.round(wins*per*(3+lv*2)*.5),nItems=Math.min(10,Math.floor(wins*.05));
+const lv0=S.chars.map(c=>c.lv);let up=0;const sh=Math.round(exp*(1+.25*(S.chars.length-1))/S.chars.length);S.chars.forEach(c=>up+=gainExp(c,sh));S.gold+=gold;S.kills[S.map]+=wins*per;S.stats.battles+=battles;
 const items=[];for(let i=0;i<nItems;i++){const it=makeItem(Math.round(lv));if(gainItem(it))items.push(it)}
-for(const id of S.party){const p=S.pets.find(x=>x.id==id);if(p)petExp(p,Math.round(exp*.7))}save();
-modal(`<h3 style="margin:0 0 6px">🛋️ 帶薪摸魚收益</h3>你不在的這段時間，角色自己摸了 <b>${Math.floor(secs/3600)} 小時 ${Math.floor(secs%3600/60)} 分</b>${el>=12*3600e3?'（最多算 12 小時，老闆也是有底線的）':''}<br>地點：${m.n}<br>摸魚 ${battles} 回（成功 ${wins}）<br>獲得 <b>${exp}</b> EXP、<b>${gold}</b> 元薪水<br>${up?`🎊 升職 Lv.${lv0} → Lv.${S.c.lv}<br>`:''}${items.length?'撿到的東西：<br>'+items.map(itemName).join('<br>'):''}`)}
+for(const c of S.chars){const p=c.pet&&S.pets.find(x=>x.id==c.pet);if(p)petExp(p,Math.round(exp*.7))}save();
+modal(`<h3 style="margin:0 0 6px">🛋️ 帶薪摸魚收益</h3>你不在的這段時間，角色自己摸了 <b>${Math.floor(secs/3600)} 小時 ${Math.floor(secs%3600/60)} 分</b>${el>=12*3600e3?'（最多算 12 小時，老闆也是有底線的）':''}<br>地點：${m.n}<br>摸魚 ${battles} 回（成功 ${wins}）<br>每人獲得 <b>${Math.round(exp*(1+.25*(S.chars.length-1))/S.chars.length)}</b> EXP、<b>${gold}</b> 元薪水<br>${up?S.chars.map((c,k)=>`🎊 ${esc(c.name)} Lv.${lv0[k]} → Lv.${c.lv}<br>`).join(''):''}${items.length?'撿到的東西：<br>'+items.map(itemName).join('<br>'):''}`)}
 /* ===== 啟動 ===== */
-function start(){$('create').classList.remove('on');$('create').style.display='none';$('main').style.display='block';hdr();offline();log('⏰ 打卡上班！開始自動摸魚。');if(S.migrated){log('📦 舊存檔已轉換成新職位：'+S.c.job);delete S.migrated;save()};loop();
+function start(){$('create').classList.remove('on');$('create').style.display='none';$('main').style.display='block';hdr();offline();log('⏰ 打卡上班！開始自動摸魚。');if(S.migrated){log('📦 舊存檔已轉換成新職位：'+C().job);delete S.migrated;save()};loop();
 setInterval(save,10000);addEventListener('visibilitychange',()=>{if(document.hidden)save()});addEventListener('pagehide',save)}
-S=load();if(S&&S.c)start();else{S=null;drawJobs()}
+S=load();if(S&&S.chars)start();else{S=null;drawJobs()}
 window.__R={get S(){return S},offline,gainExp};
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
 </script></body></html>
